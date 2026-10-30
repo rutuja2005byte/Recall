@@ -87,3 +87,20 @@ a { color: var(--text); }
 }
 .hero-btn:hover { opacity: 0.85; }
 .hero-btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+
+/* ===== Form controls ===== */
+textarea, input, select {
+  width: 100%; padding: 0.65rem 0.8rem; font: inherit; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+}
+textarea { resize: vertical; }
+textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visible,
+.dock-btn:focus-visible, .card-flip:focus-visible {
+  outline: 2px solid var(--text); outline-offset: 2px;
+}
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem; margin-top: 0.8rem; }
+.options label { display: grid; gap: 0.3rem; font-size: 0.9rem; color: var(--muted); }
+.counter { text-align: right; font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+.counter.warn { color: var(--text); font-weight: 700; }
+.counter.over { color: var(--text); font-weight: 700; text-decoration: underline; }
