@@ -1,156 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Recall</title>
-  <meta name="description" content="Recall turns your notes into a summary, a quiz and flashcards using AI." />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recall</title>
+    <meta name="description" content="Recall turns your notes into a summary, a quiz and flashcards using AI." />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
     <!-- ========== TOP BAR (logo only) ========== -->
-  <header class="topbar">
-    <span class="logo">Recall</span>
-  </header>
+    <header class="topbar">
+        <span class="logo">Recall</span>
+    </header>
 
-<main class="container">
-     <!-- ========== VIEW 1: ASK ========== -->
-    <div class="view" id="view-ask">
+    <main class="container">
+        <!-- ========== VIEW 1: ASK ========== -->
+        <div class="view" id="view-ask">
 
-      <!-- Hero -->
-      <section class="hero">
-        <div class="hero-circle" aria-hidden="true"></div>
-        <h1 class="hero-title">Study smarter</h1>
-        <p class="hero-sub">from any notes</p>
-        <div class="hero-foot">
-          <p>Paste your notes. Get a summary, quiz and flashcards in seconds.</p>
-          <button id="heroStart" class="hero-btn" type="button">Get started</button>
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-circle" aria-hidden="true"></div>
+                <h1 class="hero-title">Study smarter</h1>
+                <p class="hero-sub">from any notes</p>
+                <div class="hero-foot">
+                    <p>Paste your notes. Get a summary, quiz and flashcards in seconds.</p>
+                    <button id="heroStart" class="hero-btn" type="button">Get started</button>
+                </div>
+            </section>
+
+            <section class="card" id="askCard">
+                <h2>What do you want to study?</h2>
+                <label for="notes" class="sr-only">Notes or topic</label>
+                <textarea id="notes" rows="8"
+                    placeholder="Paste your class notes here, or type a topic such as: Photosynthesis"></textarea>
+                <div id="charCounter" class="counter" aria-live="polite">0 / 12000</div>
+
+                <div class="options">
+                    <label>Answer style
+                        <select id="style">
+                            <option value="Exam-focused">Exam-focused</option>
+                            <option value="Explain like I am 10">Explain like I am 10</option>
+                            <option value="Detailed">Detailed</option>
+                        </select>
+                    </label>
+                    <label>Quiz difficulty
+                        <select id="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="row">
+                    <button id="generateBtn" class="btn primary small-btn" type="button">Generate</button>
+                </div>
+
+                <div id="message" class="message" role="alert" hidden></div>
+            </section>
+
+            <!-- Results -->
+            <section class="card" id="results" hidden>
+                <h2>Your study material</h2>
+                <div class="tabs" role="tablist">
+                    <button class="tab active" role="tab" data-tab="summary" aria-selected="true">Summary</button>
+                    <button class="tab" role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+                    <button class="tab" role="tab" data-tab="cards" aria-selected="false">Flashcards</button>
+                </div>
+
+                <div class="panel" id="panel-summary">
+                    <div id="summaryText" class="summary"></div>
+                    <div class="row">
+                        <button id="copyBtn" class="btn" type="button">Copy</button>
+                        <button id="downloadBtn" class="btn" type="button">Download .txt</button>
+                    </div>
+                </div>
+
+                <div class="panel" id="panel-quiz" hidden>
+                    <div id="quizContainer"></div>
+                    <div class="row">
+                        <button id="submitQuiz" class="btn primary" type="button">Check answers</button>
+                        <button id="retryQuiz" class="btn" type="button" hidden>Try again</button>
+                    </div>
+                    <div id="quizScore" class="score" aria-live="polite"></div>
+                </div>
+
+                <div class="panel" id="panel-cards" hidden>
+                    <p class="muted">Click a card to flip it. Mark each card as known or not known.</p>
+                    <div id="knownCount" class="score"></div>
+                    <div id="cardsContainer" class="cards"></div>
+                </div>
+            </section>
         </div>
-      </section>
 
-      <section class="card" id="askCard">
-        <h2>What do you want to study?</h2>
-        <label for="notes" class="sr-only">Notes or topic</label>
-        <textarea id="notes" rows="8" placeholder="Paste your class notes here, or type a topic such as: Photosynthesis"></textarea>
-        <div id="charCounter" class="counter" aria-live="polite">0 / 12000</div>
+        <!-- ========== VIEW 2: HISTORY ========== -->
+        <div class="view" id="view-history" hidden>
+            <section class="card">
+                <h2>Quiz progress</h2>
+                <div id="progress" class="muted">No quiz taken yet.</div>
+            </section>
 
-        <div class="options">
-          <label>Answer style
-            <select id="style">
-              <option value="Exam-focused">Exam-focused</option>
-              <option value="Explain like I am 10">Explain like I am 10</option>
-              <option value="Detailed">Detailed</option>
-            </select>
-          </label>
-          <label>Quiz difficulty
-            <select id="difficulty">
-              <option value="easy">Easy</option>
-              <option value="medium" selected>Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </label>
+            <section class="card">
+                <h2>History</h2>
+                <div class="row history-tools">
+                    <input id="historySearch" type="search" placeholder="Search history" aria-label="Search history" />
+                    <button id="clearHistory" class="btn danger" type="button">Delete history</button>
+                </div>
+                <ul id="historyList" class="history"></ul>
+            </section>
         </div>
 
-        <div class="row">
-          <button id="generateBtn" class="btn primary small-btn" type="button">Generate</button>
+        <!-- ========== VIEW 3: SETTINGS ========== -->
+        <div class="view" id="view-settings" hidden>
+            <section class="card">
+                <h2>API key</h2>
+                <p class="muted">
+                    Paste your own free Google Gemini API key. It is stored only in your browser's localStorage
+                    and is sent only to Google's API. Get a free key at
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                        rel="noopener">aistudio.google.com/app/apikey</a>.
+                </p>
+                <div class="row">
+                    <input id="apiKey" type="password" placeholder="Paste your API key here" autocomplete="off"
+                        aria-label="API key" />
+                    <button id="toggleKey" class="btn" type="button">Show</button>
+                </div>
+                <div class="row">
+                    <button id="saveKey" class="btn primary" type="button">Save key</button>
+                    <button id="removeKey" class="btn danger" type="button">Remove key</button>
+                </div>
+                <p id="keyStatus" class="muted small" aria-live="polite"></p>
+            </section>
         </div>
+    </main>
 
-        <div id="message" class="message" role="alert" hidden></div>
-      </section>
-
-      <!-- Results -->
-      <section class="card" id="results" hidden>
-        <h2>Your study material</h2>
-        <div class="tabs" role="tablist">
-          <button class="tab active" role="tab" data-tab="summary" aria-selected="true">Summary</button>
-          <button class="tab" role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
-          <button class="tab" role="tab" data-tab="cards" aria-selected="false">Flashcards</button>
-        </div>
-
-        <div class="panel" id="panel-summary">
-          <div id="summaryText" class="summary"></div>
-          <div class="row">
-            <button id="copyBtn" class="btn" type="button">Copy</button>
-            <button id="downloadBtn" class="btn" type="button">Download .txt</button>
-          </div>
-        </div>
-
-        <div class="panel" id="panel-quiz" hidden>
-          <div id="quizContainer"></div>
-          <div class="row">
-            <button id="submitQuiz" class="btn primary" type="button">Check answers</button>
-            <button id="retryQuiz" class="btn" type="button" hidden>Try again</button>
-          </div>
-          <div id="quizScore" class="score" aria-live="polite"></div>
-        </div>
-
-        <div class="panel" id="panel-cards" hidden>
-          <p class="muted">Click a card to flip it. Mark each card as known or not known.</p>
-          <div id="knownCount" class="score"></div>
-          <div id="cardsContainer" class="cards"></div>
-        </div>
-      </section>
-    </div>
-    
-    <!-- ========== VIEW 2: HISTORY ========== -->
-    <div class="view" id="view-history" hidden>
-      <section class="card">
-        <h2>Quiz progress</h2>
-        <div id="progress" class="muted">No quiz taken yet.</div>
-      </section>
-
-      <section class="card">
-        <h2>History</h2>
-        <div class="row history-tools">
-          <input id="historySearch" type="search" placeholder="Search history" aria-label="Search history" />
-          <button id="clearHistory" class="btn danger" type="button">Delete history</button>
-        </div>
-        <ul id="historyList" class="history"></ul>
-      </section>
-    </div>
-
-    <!-- ========== VIEW 3: SETTINGS ========== -->
-    <div class="view" id="view-settings" hidden>
-      <section class="card">
-        <h2>API key</h2>
-        <p class="muted">
-          Paste your own free Google Gemini API key. It is stored only in your browser's localStorage
-          and is sent only to Google's API. Get a free key at
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a>.
-        </p>
-        <div class="row">
-          <input id="apiKey" type="password" placeholder="Paste your API key here" autocomplete="off" aria-label="API key" />
-          <button id="toggleKey" class="btn" type="button">Show</button>
-        </div>
-        <div class="row">
-          <button id="saveKey" class="btn primary" type="button">Save key</button>
-          <button id="removeKey" class="btn danger" type="button">Remove key</button>
-        </div>
-        <p id="keyStatus" class="muted small" aria-live="polite"></p>
-      </section>
-    </div>
-</main>
-
-<!-- ========== FLOATING DOCK NAVBAR ========== -->
-  <nav class="dock" aria-label="Main">
-    <button class="dock-btn active" type="button" data-view="ask" data-label="Ask" aria-label="Ask" aria-current="page">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-    </button>
-    <button class="dock-btn" type="button" data-view="history" data-label="History" aria-label="History">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-    </button>
-    <button class="dock-btn" type="button" data-view="settings" data-label="Settings" aria-label="Settings">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-    <span class="dock-divider" aria-hidden="true"></span>
-    <button id="themeToggle" class="dock-btn" type="button" data-label="Dark mode" aria-label="Toggle dark / light mode"></button>
-  </nav>
+    <!-- ========== FLOATING DOCK NAVBAR ========== -->
+    <nav class="dock" aria-label="Main">
+        <button class="dock-btn active" type="button" data-view="ask" data-label="Ask" aria-label="Ask"
+            aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+        </button>
+        <button class="dock-btn" type="button" data-view="history" data-label="History" aria-label="History">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+            </svg>
+        </button>
+        <button class="dock-btn" type="button" data-view="settings" data-label="Settings" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+        </button>
+        <span class="dock-divider" aria-hidden="true"></span>
+        <button id="themeToggle" class="dock-btn" type="button" data-label="Dark mode"
+            aria-label="Toggle dark / light mode"></button>
+    </nav>
 
 
     <script src="script.js"></script>
 </body>
+
 </html>
