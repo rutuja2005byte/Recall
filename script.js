@@ -214,3 +214,177 @@ function validateResult(obj) {
 
   return { summary: obj.summary.trim(), quiz: quiz.slice(0, 5), flashcards };
 }
+
+/* ---------- 6. Rendering ---------- */
+function renderAll() {
+  if (!state.current) return;
+  $("results").hidden = false;
+  renderSummary();
+  renderQuiz();
+  renderCards();
+}
+
+function renderSummary() {
+  $("summaryText").textContent = state.current.result.summary;
+}
+
+/* Quiz */
+function renderQuiz() {
+  const box = $("quizContainer");
+  box.innerHTML = "";
+  state.quizDone = false;
+  $("quizScore").textContent = "";
+  $("submitQuiz").hidden = false;
+  $("retryQuiz").hidden = true;
+
+  state.current.result.quiz.forEach((q, qi) => {
+    const wrap = document.createElement("div");
+    wrap.className = "q";
+    const h = document.createElement("h3");
+    h.textContent = `${qi + 1}. ${q.question}`;
+    wrap.appendChild(h);
+
+    q.options.forEach((opt, oi) => {
+      const label = document.createElement("label");
+      label.className = "opt";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `q${qi}`;
+      input.value = oi;
+      const span = document.createElement("span");
+      span.textContent = opt;
+      label.append(input, span);
+      wrap.appendChild(label);
+    });
+
+    const fb = document.createElement("div");
+    fb.className = "feedback";
+    fb.id = `fb${qi}`;
+    wrap.appendChild(fb);
+    box.appendChild(wrap);
+  });
+}
+
+function checkQuiz() {
+  if (state.quizDone) return;
+  const quiz = state.current.result.quiz;
+
+  // Make sure at least one answer was chosen before marking
+  const answeredAny = quiz.some((q, qi) => $("quizContainer").children[qi].querySelector(`input[name="q${qi}"]:checked`));
+  if (!answeredAny) {
+    $("quizScore").textContent = "Please choose at least one answer first.";
+    return;
+  }
+
+  let score = 0;
+  quiz.forEach((q, qi) => {
+    const wrap = $("quizContainer").children[qi];
+    const chosen = wrap.querySelector(`input[name="q${qi}"]:checked`);
+
+    wrap.querySelectorAll(".opt").forEach((label, oi) => {
+      label.querySelector("input").disabled = true;
+      if (oi === q.answer) label.classList.add("correct");               // show the correct answer
+      else if (chosen && Number(chosen.value) === oi) label.classList.add("wrong");
+    });
+
+    const isRight = chosen && Number(chosen.value) === q.answer;
+    if (isRight) score++;
+    $(`fb${qi}`).textContent =
+      (isRight ? "Correct. " : `Correct answer: ${q.options[q.answer]}. `) + q.explanation;
+  });
+
+  state.quizDone = true;
+  $("quizScore").textContent = `Your score: ${score} / ${quiz.length}`;
+  $("submitQuiz").hidden = true;
+  $("retryQuiz").hidden = false;
+  saveScore(score, quiz.length);
+}
+
+/* Flashcards */
+function renderCards() {
+  const box = $("cardsContainer");
+  box.innerHTML = "";
+  const cards = state.current.result.flashcards;
+  if (!state.current.known) state.current.known = {};
+
+  cards.forEach((c, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "card-wrap";
+
+    const flip = document.createElement("button");
+    flip.type = "button";
+    flip.className = "card-flip";
+    flip.setAttribute("aria-label", "Flashcard. Click to flip.");
+    flip.innerHTML = '<div class="card-inner"><div class="face front"></div><div class="face back"></div></div>';
+    flip.querySelector(".front").textContent = c.front;
+    flip.querySelector(".back").textContent = c.back;
+    flip.addEventListener("click", () => flip.classList.toggle("flipped"));
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+    const knownBtn = document.createElement("button");
+    knownBtn.type = "button"; knownBtn.className = "btn"; knownBtn.textContent = "Known";
+    const unknownBtn = document.createElement("button");
+    unknownBtn.type = "button"; unknownBtn.className = "btn"; unknownBtn.textContent = "Not known";
+
+    const paint = () => {
+      knownBtn.classList.toggle("active-known", state.current.known[i] === true);
+      unknownBtn.classList.toggle("active-unknown", state.current.known[i] === false);
+    };
+    knownBtn.addEventListener("click", () => { state.current.known[i] = true; paint(); updateKnownCount(); });
+    unknownBtn.addEventListener("click", () => { state.current.known[i] = false; paint(); updateKnownCount(); });
+    paint();
+
+    actions.append(knownBtn, unknownBtn);
+    wrap.append(flip, actions);
+    box.appendChild(wrap);
+  });
+  updateKnownCount();
+}
+
+function updateKnownCount() {
+  const total = state.current.result.flashcards.length;
+  const known = Object.values(state.current.known || {}).filter((v) => v === true).length;
+  $("knownCount").textContent = `You know ${known} of ${total} cards`;
+}
+
+/* Summary tools: copy, download */
+async function copySummary() {
+  const text = state.current?.result.summary || "";
+  try {
+    await navigator.clipboard.writeText(text);
+    showMessage("Summary copied to clipboard.", "success");
+  } catch {
+    // fallback for older browsers
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    showMessage(ok ? "Summary copied to clipboard." : "Could not copy. Please select the text and copy manually.", ok ? "success" : "error");
+  }
+}
+
+function downloadSummary() {
+  const blob = new Blob([state.current.result.summary], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "summary.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* Tabs inside the results (Summary / Quiz / Flashcards) */
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => {
+    const active = t.dataset.tab === name;
+    t.classList.toggle("active", active);
+    t.setAttribute("aria-selected", active);
+  });
+  ["summary", "quiz", "cards"].forEach((p) => ($(`panel-${p}`).hidden = p !== name));
+}
+
