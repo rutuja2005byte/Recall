@@ -16,5 +16,87 @@
   <header class="topbar">
     <span class="logo">Recall</span>
   </header>
+
+  <main class="container">
+     <!-- ========== VIEW 1: ASK ========== -->
+    <div class="view" id="view-ask">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-circle" aria-hidden="true"></div>
+        <h1 class="hero-title">Study smarter</h1>
+        <p class="hero-sub">from any notes</p>
+        <div class="hero-foot">
+          <p>Paste your notes. Get a summary, quiz and flashcards in seconds.</p>
+          <button id="heroStart" class="hero-btn" type="button">Get started</button>
+        </div>
+      </section>
+
+      <section class="card" id="askCard">
+        <h2>What do you want to study?</h2>
+        <label for="notes" class="sr-only">Notes or topic</label>
+        <textarea id="notes" rows="8" placeholder="Paste your class notes here, or type a topic such as: Photosynthesis"></textarea>
+        <div id="charCounter" class="counter" aria-live="polite">0 / 12000</div>
+
+        <div class="options">
+          <label>Answer style
+            <select id="style">
+              <option value="Exam-focused">Exam-focused</option>
+              <option value="Explain like I am 10">Explain like I am 10</option>
+              <option value="Detailed">Detailed</option>
+            </select>
+          </label>
+          <label>Quiz difficulty
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <button id="generateBtn" class="btn primary small-btn" type="button">Generate</button>
+        </div>
+
+        <div id="message" class="message" role="alert" hidden></div>
+      </section>
+
+      <!-- Results -->
+      <section class="card" id="results" hidden>
+        <h2>Your study material</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" data-tab="summary" aria-selected="true">Summary</button>
+          <button class="tab" role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+          <button class="tab" role="tab" data-tab="cards" aria-selected="false">Flashcards</button>
+        </div>
+
+        <div class="panel" id="panel-summary">
+          <div id="summaryText" class="summary"></div>
+          <div class="row">
+            <button id="copyBtn" class="btn" type="button">Copy</button>
+            <button id="downloadBtn" class="btn" type="button">Download .txt</button>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-quiz" hidden>
+          <div id="quizContainer"></div>
+          <div class="row">
+            <button id="submitQuiz" class="btn primary" type="button">Check answers</button>
+            <button id="retryQuiz" class="btn" type="button" hidden>Try again</button>
+          </div>
+          <div id="quizScore" class="score" aria-live="polite"></div>
+        </div>
+
+        <div class="panel" id="panel-cards" hidden>
+          <p class="muted">Click a card to flip it. Mark each card as known or not known.</p>
+          <div id="knownCount" class="score"></div>
+          <div id="cardsContainer" class="cards"></div>
+        </div>
+      </section>
+    </div>
+
+    
+  </main>
 </body>
 </html>
