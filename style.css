@@ -221,3 +221,25 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
 }
 .dock-btn:hover::after, .dock-btn:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 .dock-btn:hover::before, .dock-btn:focus-visible::before { opacity: 1; }
+
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  .container { padding: 0.6rem; }
+  .topbar { padding: 0.9rem 0.8rem 0; }
+  .card { padding: 0.9rem; }
+  .hero { min-height: 320px; padding: 1.3rem; }
+  .hero-circle { right: -230px; }
+  .btn { flex: 1 1 auto; }
+  .small-btn { flex: 0 0 auto; }
+  /* History page on phones: search box and delete button each take a full row */
+  .history-tools { flex-direction: column; align-items: stretch; }
+  .history-tools input, .history-tools .btn { flex: none; width: 100%; }
+  .history .title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .bar { max-width: none; }
+  .dock { gap: 6px; padding: 8px 10px; bottom: 14px; }
+  .dock-btn { width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-inner, .btn, .dock-btn { transition: none; }
+}
