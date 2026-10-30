@@ -51,3 +51,39 @@ function setLoading(isLoading) {
 }
 
 function getApiKey() { return storeGet(KEYS.apiKey, ""); }
+
+/* ---------- 3. Navigation (Ask / History / Settings) & theme ---------- */
+function switchView(name) {
+  document.querySelectorAll(".view").forEach((v) => (v.hidden = v.id !== `view-${name}`));
+  document.querySelectorAll(".dock-btn[data-view]").forEach((b) => {
+    const active = b.dataset.view === name;
+    b.classList.toggle("active", active);
+    if (active) b.setAttribute("aria-current", "page");
+    else b.removeAttribute("aria-current");
+  });
+  if (name === "history") { renderHistory(); renderProgress(); }
+  window.scrollTo({ top: 0 });
+}
+
+// Simple line icons for the theme button in the dock
+const ICON_MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+const ICON_SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = $("themeToggle");
+  // in dark mode show the sun (switch to light), in light mode show the moon (switch to dark)
+  btn.innerHTML = theme === "dark" ? ICON_SUN : ICON_MOON;
+  btn.dataset.label = theme === "dark" ? "Light mode" : "Dark mode";
+}
+function initTheme() {
+  const saved = storeGet(KEYS.theme);
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(saved || (prefersDark ? "dark" : "light"));
+}
+function toggleTheme() {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  applyTheme(next);
+  storeSet(KEYS.theme, next);
+}
+
