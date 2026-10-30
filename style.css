@@ -104,3 +104,22 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
 .counter { text-align: right; font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
 .counter.warn { color: var(--text); font-weight: 700; }
 .counter.over { color: var(--text); font-weight: 700; text-decoration: underline; }
+
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 0.6rem 1.1rem; font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: 8px;
+  transition: opacity 0.15s;
+}
+.btn:hover:not(:disabled) { background: var(--soft); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.primary { background: var(--primary); color: var(--primary-text); }
+.btn.primary:hover:not(:disabled) { opacity: 0.85; background: var(--primary); }
+.btn.danger { border-style: dashed; }
+.small-btn { padding: 0.4rem 0.9rem; font-size: 0.85rem; }
+
+/* ===== Messages ===== */
+.message { margin-top: 0.9rem; padding: 0.7rem 0.9rem; border-radius: 8px; background: var(--soft); }
+.message.error { border-left: 4px solid var(--text); font-weight: 600; }
+.message.success { border-left: 4px dashed var(--muted); }
