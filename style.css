@@ -131,3 +131,38 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
   background: transparent; color: var(--muted); border: none; border-bottom: 3px solid transparent;
 }
 .tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+/* ===== Summary ===== */
+.summary { white-space: pre-wrap; background: var(--soft); border-radius: 8px; padding: 0.9rem; border: 1px solid var(--border); }
+
+/* ===== Quiz ===== */
+.q { border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.8rem; }
+.q h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.opt {
+  display: flex; gap: 0.6rem; align-items: center; padding: 0.45rem 0.6rem;
+  border-radius: 8px; cursor: pointer; margin: 0.2rem 0; border: 1px solid transparent;
+}
+.opt:hover { background: var(--soft); }
+.opt input { width: auto; margin: 0; accent-color: var(--text); }
+.opt.correct { background: var(--primary); color: var(--primary-text); }
+.opt.wrong { border: 1px dashed var(--text); text-decoration: line-through; }
+.feedback { font-size: 0.9rem; margin-top: 0.4rem; color: var(--muted); }
+.score { font-weight: 700; margin-top: 0.8rem; }
+
+/* ===== Flashcards (flip animation) ===== */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 0.8rem; }
+.card-wrap { display: grid; gap: 0.5rem; }
+.card-flip { perspective: 900px; height: 170px; padding: 0; border: none; background: none; cursor: pointer; font: inherit; color: inherit; }
+.card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.55s; transform-style: preserve-3d; }
+.card-flip.flipped .card-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 1rem; border-radius: 12px; border: 1px solid var(--text);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: auto;
+}
+.face.front { background: var(--bg); }
+.face.back { background: var(--primary); color: var(--primary-text); transform: rotateY(180deg); }
+.card-actions { display: flex; gap: 0.4rem; }
+.card-actions .btn { flex: 1; padding: 0.4rem; font-size: 0.85rem; }
+.card-actions .btn.active-known { background: var(--primary); color: var(--primary-text); }
+.card-actions .btn.active-unknown { background: var(--soft); border-style: dashed; font-weight: 800; text-decoration: underline; }
