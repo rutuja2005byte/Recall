@@ -10,7 +10,6 @@ Recall is an AI-powered study assistant that transforms your notes into summarie
 - Study history
 - Dark and light mode
 
-## Screenshots
 
 ![Recall Screenshot](assets/img.png)
 
@@ -22,8 +21,6 @@ Recall is an AI-powered study assistant that transforms your notes into summarie
 - JavaScript
 - Google Gemini API
 
-## Live Demo
-[Try Recall](https://recall-ske4.vercel.app/)
 
 ## Run Locally
 1. Clone the repository.
