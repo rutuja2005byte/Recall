@@ -388,3 +388,102 @@ function switchTab(name) {
   ["summary", "quiz", "cards"].forEach((p) => ($(`panel-${p}`).hidden = p !== name));
 }
 
+/* ---------- 7. History & progress ---------- */
+function getHistory() { return storeGet(KEYS.history, []); }
+
+function saveToHistory(entry) {
+  const list = getHistory();
+  list.unshift({ id: entry.id, time: Date.now(), notes: entry.notes, style: entry.style,
+                 difficulty: entry.difficulty, result: entry.result });
+  storeSet(KEYS.history, list.slice(0, MAX_HISTORY));
+  renderHistory();
+}
+
+function renderHistory() {
+  const term = $("historySearch").value.trim().toLowerCase();
+  const list = getHistory().filter((h) =>
+    !term || h.notes.toLowerCase().includes(term) || h.result.summary.toLowerCase().includes(term));
+  const ul = $("historyList");
+  ul.innerHTML = "";
+
+  if (list.length === 0) {
+    const li = document.createElement("li");
+    li.className = "muted";
+    li.textContent = term ? "No history matches your search." : "No history yet. Generate something first.";
+    ul.appendChild(li);
+    return;
+  }
+
+  list.forEach((h) => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "item";
+    const title = document.createElement("span");
+    title.className = "title";
+    title.textContent = h.notes.slice(0, 80) || "(untitled)";
+    const meta = document.createElement("span");
+    meta.className = "meta";
+    meta.textContent = `${new Date(h.time).toLocaleString()} | ${h.style} | ${h.difficulty}`;
+    btn.append(title, meta);
+    btn.addEventListener("click", () => showFromHistory(h));
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+}
+
+// Open a saved generation again on the Ask page
+function showFromHistory(h) {
+  state.current = { id: h.id, notes: h.notes, style: h.style, difficulty: h.difficulty, result: h.result, known: {} };
+  $("notes").value = h.notes;
+  $("style").value = h.style;
+  $("difficulty").value = h.difficulty;
+  updateCounter();
+  clearMessage();
+  switchView("ask");
+  renderAll();
+  switchTab("summary");
+  $("results").scrollIntoView({ behavior: "smooth" });
+}
+
+function clearHistory() {
+  if (getHistory().length === 0) return;
+  if (confirm("Delete all saved history? This cannot be undone.")) {
+    try { localStorage.removeItem(KEYS.history); } catch { /* ignore */ }
+    renderHistory();
+  }
+}
+
+/* Quiz score tracking */
+function saveScore(score, total) {
+  const scores = storeGet(KEYS.scores, []);
+  scores.push({ score, total, time: Date.now(), difficulty: state.current.difficulty });
+  storeSet(KEYS.scores, scores.slice(-30));
+  renderProgress();
+}
+
+function renderProgress() {
+  const scores = storeGet(KEYS.scores, []);
+  const box = $("progress");
+  box.innerHTML = "";
+  if (scores.length === 0) { box.textContent = "No quiz taken yet."; return; }
+
+  const pct = scores.map((s) => Math.round((s.score / s.total) * 100));
+  const avg = Math.round(pct.reduce((a, b) => a + b, 0) / pct.length);
+  const best = Math.max(...pct);
+
+  const p = document.createElement("p");
+  p.textContent = `Quizzes taken: ${scores.length} | Average: ${avg}% | Best: ${best}%`;
+  box.appendChild(p);
+
+  const bars = document.createElement("div");
+  bars.className = "bars";
+  pct.slice(-10).forEach((v) => {
+    const b = document.createElement("div");
+    b.className = "bar";
+    b.style.height = `${Math.max(v, 4)}%`;
+    b.title = `${v}%`;
+    bars.appendChild(b);
+  });
+  box.appendChild(bars);
+}
