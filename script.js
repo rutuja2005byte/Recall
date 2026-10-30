@@ -87,3 +87,75 @@ function toggleTheme() {
   storeSet(KEYS.theme, next);
 }
 
+/* ---------- 4. Prompt + API call ---------- */
+
+// Build the instruction ("prompt") sent to the AI
+function buildPrompt(notes, style, difficulty) {
+  return `You are a helpful study assistant. Turn the student's notes or topic below into study material.
+Answer style: ${style}.
+Quiz difficulty: ${difficulty}.
+
+Reply ONLY with valid JSON (no markdown, no code fences, no extra text) in exactly this format:
+{
+  "summary": "a short summary (about 5-8 sentences) in the requested style",
+  "quiz": [
+    { "question": "question text", "options": ["A", "B", "C", "D"], "answer": 0, "explanation": "one short sentence" }
+  ],
+  "flashcards": [
+    { "front": "question or term", "back": "answer or definition" }
+  ]
+}
+Rules: "quiz" must contain exactly 5 questions, each with exactly 4 options.
+"answer" is the zero-based index (0-3) of the correct option. "flashcards" must contain 6 to 8 cards.
+
+Student's notes / topic:
+"""
+${notes}
+"""`;
+}
+
+// Turn an HTTP status code into a clear message
+function messageForStatus(status) {
+  switch (status) {
+    case 400: return "Bad request or invalid API key (HTTP 400). Please check your API key in Settings.";
+    case 401: return "Unauthorized (HTTP 401). Your API key is wrong or missing.";
+    case 403: return "Access denied (HTTP 403). Your API key is not allowed to use this service.";
+    case 404: return "The AI service URL or model was not found (HTTP 404).";
+    case 429: return "Rate limit reached (HTTP 429). You sent too many requests. Wait a minute and try again.";
+    default:
+      return status >= 500
+        ? `The AI server has a problem (HTTP ${status}). Please try again later.`
+        : `Request failed with HTTP status ${status}.`;
+  }
+}
+
+// POST request to the Gemini API using async / await
+async function callApi(apiKey, prompt) {
+  let response;
+  try {
+    response = await fetch(API_URL, {
+      method: "POST",                                   // HTTP method
+      headers: {                                        // request headers
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify({                            // request body
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.8 },
+      }),
+    });
+  } catch (err) {
+    // fetch itself failed -> no internet / blocked / DNS problem
+    throw new Error("Network failure: could not reach the AI service. Check your internet connection.");
+  }
+
+  if (!response.ok) {
+    throw new Error(messageForStatus(response.status));
+  }
+
+  try {
+    return await response.json();
+  } catch {
+    throw new Error("Invalid AI reply: the server did not return readable JSON.");
+  }
+}
