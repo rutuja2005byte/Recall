@@ -166,3 +166,23 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
 .card-actions .btn { flex: 1; padding: 0.4rem; font-size: 0.85rem; }
 .card-actions .btn.active-known { background: var(--primary); color: var(--primary-text); }
 .card-actions .btn.active-unknown { background: var(--soft); border-style: dashed; font-weight: 800; text-decoration: underline; }
+
+/* ===== Progress ===== */
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 70px; margin-top: 0.6rem; }
+.bar { flex: 1; max-width: 36px; background: var(--text); border-radius: 4px 4px 0 0; min-height: 4px; }
+
+/* ===== History ===== */
+.history { list-style: none; padding: 0; margin: 0.8rem 0 0; display: grid; gap: 0.5rem; }
+.history li { min-width: 0; }
+.history .item {
+  display: block; width: 100%; max-width: 100%; min-width: 0; overflow: hidden;
+  text-align: left; padding: 0.7rem 0.9rem; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; cursor: pointer;
+}
+.history .item:hover { border-color: var(--text); background: var(--soft); }
+.history .title {
+  font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.history .meta { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; white-space: normal; overflow-wrap: anywhere; }
+.history-tools input { min-width: 0; }
+.bars { max-width: 100%; overflow: hidden; }
