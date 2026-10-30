@@ -95,8 +95,23 @@
         </div>
       </section>
     </div>
-
     
+    <!-- ========== VIEW 2: HISTORY ========== -->
+    <div class="view" id="view-history" hidden>
+      <section class="card">
+        <h2>Quiz progress</h2>
+        <div id="progress" class="muted">No quiz taken yet.</div>
+      </section>
+
+      <section class="card">
+        <h2>History</h2>
+        <div class="row history-tools">
+          <input id="historySearch" type="search" placeholder="Search history" aria-label="Search history" />
+          <button id="clearHistory" class="btn danger" type="button">Delete history</button>
+        </div>
+        <ul id="historyList" class="history"></ul>
+      </section>
+    </div>
   </main>
 </body>
 </html>
