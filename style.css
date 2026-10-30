@@ -123,3 +123,11 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
 .message { margin-top: 0.9rem; padding: 0.7rem 0.9rem; border-radius: 8px; background: var(--soft); }
 .message.error { border-left: 4px solid var(--text); font-weight: 600; }
 .message.success { border-left: 4px dashed var(--muted); }
+
+/* ===== Tabs ===== */
+.tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.tab {
+  padding: 0.55rem 1rem; font: inherit; font-weight: 600; cursor: pointer;
+  background: transparent; color: var(--muted); border: none; border-bottom: 3px solid transparent;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--text); }
