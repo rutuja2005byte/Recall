@@ -487,3 +487,108 @@ function renderProgress() {
   });
   box.appendChild(bars);
 }
+
+/* ---------- 8. Events / main flow ---------- */
+
+// Character counter + limit warning
+function updateCounter() {
+  const len = $("notes").value.length;
+  const el = $("charCounter");
+  el.textContent = `${len} / ${MAX_CHARS}`;
+  el.classList.toggle("warn", len >= MAX_CHARS * WARN_AT && len <= MAX_CHARS);
+  el.classList.toggle("over", len > MAX_CHARS);
+  if (len > MAX_CHARS) el.textContent += " - too long, please shorten your notes";
+  else if (len >= MAX_CHARS * WARN_AT) el.textContent += " - getting close to the limit";
+}
+
+// Main flow: validate input -> build prompt -> call API -> parse -> render -> save
+async function generate() {
+  if (state.isLoading) return;       // extra guard against double clicks
+  clearMessage();
+
+  const notes = $("notes").value.trim();
+  const apiKey = getApiKey();
+  const style = $("style").value;
+  const difficulty = $("difficulty").value;
+
+  // --- input validation ---
+  if (!apiKey) {
+    showMessage("No API key found. Open the Settings page, paste your free API key and click Save key.");
+    return;
+  }
+  if (!notes) { showMessage("Please type or paste some notes or a topic first."); return; }
+  if (notes.length > MAX_CHARS) {
+    showMessage(`Your notes are too long (${notes.length} characters). The limit is ${MAX_CHARS}.`);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const prompt = buildPrompt(notes, style, difficulty);
+    const data = await callApi(apiKey, prompt);
+    console.log("Full API response:", data);                // helpful while learning the response shape
+    const result = parseReply(extractText(data));
+
+    state.current = { id: Date.now(), notes, style, difficulty, result, known: {} };
+    renderAll();
+    switchTab("summary");
+    saveToHistory(state.current);
+    $("results").scrollIntoView({ behavior: "smooth" });
+  } catch (err) {
+    console.error(err);
+    showMessage(err.message || "Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);               // always re-enable the button
+  }
+}
+
+// API key settings
+function saveKey() {
+  const key = $("apiKey").value.trim();
+  if (!key) { $("keyStatus").textContent = "Please paste a key first."; return; }
+  storeSet(KEYS.apiKey, key);
+  $("apiKey").value = "";
+  updateKeyStatus("Key saved.");
+}
+function removeKey() {
+  try { localStorage.removeItem(KEYS.apiKey); } catch { /* ignore */ }
+  $("apiKey").value = "";
+  updateKeyStatus("Key removed.");
+}
+function updateKeyStatus(prefix = "") {
+  const has = !!getApiKey();
+  const status = has ? "A key is saved in this browser." : "No key saved yet.";
+  $("keyStatus").textContent = prefix ? `${prefix} ${status}` : status;
+  $("apiKey").placeholder = has ? "Key saved (hidden). Paste a new one to replace it." : "Paste your API key here";
+}
+
+function init() {
+  initTheme();
+  updateKeyStatus();
+  updateCounter();
+  renderHistory();
+  renderProgress();
+
+  document.querySelectorAll(".dock-btn[data-view]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.view)));
+  $("heroStart").addEventListener("click", () => { $("askCard").scrollIntoView({ behavior: "smooth" }); $("notes").focus({ preventScroll: true }); });
+  $("themeToggle").addEventListener("click", toggleTheme);
+  $("saveKey").addEventListener("click", saveKey);
+  $("removeKey").addEventListener("click", removeKey);
+  $("toggleKey").addEventListener("click", () => {
+    const input = $("apiKey");
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    $("toggleKey").textContent = show ? "Hide" : "Show";
+  });
+  $("notes").addEventListener("input", updateCounter);
+  $("generateBtn").addEventListener("click", generate);
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.tab)));
+  $("copyBtn").addEventListener("click", copySummary);
+  $("downloadBtn").addEventListener("click", downloadSummary);
+  $("submitQuiz").addEventListener("click", checkQuiz);
+  $("retryQuiz").addEventListener("click", renderQuiz);
+  $("historySearch").addEventListener("input", renderHistory);
+  $("clearHistory").addEventListener("click", clearHistory);
+}
+
+document.addEventListener("DOMContentLoaded", init);
