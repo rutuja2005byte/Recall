@@ -206,3 +206,18 @@ textarea:focus, input:focus, select:focus, .btn:focus-visible, .tab:focus-visibl
 .dock-btn.active { color: #ffffff; background: #2a2a2a; border-color: rgba(255, 255, 255, 0.3); }
 .dock-btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
 .dock-divider { width: 1px; height: 30px; background: rgba(255, 255, 255, 0.18); margin: 0 2px; }
+
+/* Tooltip bubble above the hovered icon */
+.dock-btn::after {
+  content: attr(data-label); position: absolute; bottom: calc(100% + 14px); left: 50%;
+  transform: translateX(-50%) translateY(4px); white-space: nowrap; pointer-events: none;
+  padding: 0.45rem 0.9rem; border-radius: 14px; background: #e5e5e5; color: #111111;
+  font-size: 0.9rem; font-weight: 500; opacity: 0; transition: opacity 0.15s, transform 0.15s;
+}
+.dock-btn::before {
+  content: ""; position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent; border-top-color: #e5e5e5;
+  border-bottom: 0; opacity: 0; transition: opacity 0.15s; pointer-events: none;
+}
+.dock-btn:hover::after, .dock-btn:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+.dock-btn:hover::before, .dock-btn:focus-visible::before { opacity: 1; }
