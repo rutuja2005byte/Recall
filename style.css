@@ -1,0 +1,21 @@
+/* ===== Black & white theme ===== */
+:root {
+  --bg: #ffffff;
+  --soft: #f4f4f4;
+  --text: #111111;
+  --muted: #666666;
+  --border: #d4d4d4;
+  --primary: #111111;
+  --primary-text: #ffffff;
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --soft: #171717;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --border: #333333;
+  --primary: #f5f5f5;
+  --primary-text: #0a0a0a;
+}
+
+* { box-sizing: border-box; }
