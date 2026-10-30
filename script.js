@@ -159,3 +159,58 @@ async function callApi(apiKey, prompt) {
     throw new Error("Invalid AI reply: the server did not return readable JSON.");
   }
 }
+
+
+/* ---------- 5. Parsing & validation ---------- */
+
+// Find the AI's answer text inside the API response JSON
+function extractText(data) {
+  if (data?.promptFeedback?.blockReason) {
+    throw new Error("Invalid AI reply: the request was blocked by the AI safety filter. Try different notes.");
+  }
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (typeof text !== "string" || !text.trim()) {
+    throw new Error("Invalid AI reply: the response contained no text.");
+  }
+  return text;
+}
+
+// Parse the text as JSON (inside try/catch) and check its structure
+function parseReply(text) {
+  const cleaned = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  let obj;
+  try {
+    obj = JSON.parse(cleaned);
+  } catch {
+    throw new Error("Invalid AI reply: the answer was not valid JSON. Please click Generate again.");
+  }
+  return validateResult(obj);
+}
+
+function validateResult(obj) {
+  const bad = (what) => new Error(`Invalid AI reply: ${what}. Please click Generate again.`);
+
+  if (!obj || typeof obj !== "object") throw bad("unexpected format");
+  if (typeof obj.summary !== "string" || !obj.summary.trim()) throw bad("the summary is missing");
+
+  if (!Array.isArray(obj.quiz) || obj.quiz.length === 0) throw bad("the quiz is missing");
+  const quiz = obj.quiz.map((q, i) => {
+    const okOptions = Array.isArray(q?.options) && q.options.length >= 2 && q.options.every((o) => typeof o === "string");
+    const ans = Number(q?.answer);
+    if (typeof q?.question !== "string" || !q.question.trim() || !okOptions ||
+        !Number.isInteger(ans) || ans < 0 || ans >= q.options.length) {
+      throw bad(`quiz question ${i + 1} is incomplete`);
+    }
+    return { question: q.question, options: q.options, answer: ans, explanation: String(q.explanation || "") };
+  });
+
+  if (!Array.isArray(obj.flashcards) || obj.flashcards.length === 0) throw bad("the flashcards are missing");
+  const flashcards = obj.flashcards.map((c, i) => {
+    if (typeof c?.front !== "string" || typeof c?.back !== "string" || !c.front.trim() || !c.back.trim()) {
+      throw bad(`flashcard ${i + 1} is incomplete`);
+    }
+    return { front: c.front, back: c.back };
+  });
+
+  return { summary: obj.summary.trim(), quiz: quiz.slice(0, 5), flashcards };
+}
